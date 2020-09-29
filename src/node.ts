@@ -4,7 +4,7 @@ import sourceMapSupport from 'source-map-support'
 import { buildSync } from 'esbuild'
 import { addHook } from 'pirates'
 import atob from 'atob'
-import { getOptions, getOptionsPath } from './options'
+import { getOptions } from './options'
 
 const map: { [file: string]: string | RawSourceMap } = {}
 
@@ -52,17 +52,14 @@ function getSourceMap(js: string): string {
 
 function compile(code: string, filename: string) {
   const options = getOptions(dirname(filename))
-  const optionsPath = getOptionsPath(dirname(filename))
-  const logLevel: 'error' | 'info' | 'warning' | 'silent' | undefined = 'error'
-
   const { warnings, outputFiles } = buildSync({
     // tsconfig options
-    tsconfig: optionsPath,
+    tsconfig: options.path,
     // TODO: target should respect tsconfig
-    // target: optionsPath ? undefined : options.target,
+    // target: options.path ? undefined : options.target,
     target: options.target?.toLocaleLowerCase(),
-    jsxFactory: optionsPath ? undefined : options.jsxFactory,
-    jsxFragment: optionsPath ? undefined : options.jsxFragment,
+    jsxFactory: options.jsxFactory,
+    jsxFragment: options.jsxFragment,
     // TODO: support process.argv options, sourcemap, format, logLevel, stdin.loader
     sourcemap: true,
     format: 'cjs',
@@ -72,7 +69,7 @@ function compile(code: string, filename: string) {
       sourcefile: filename,
       contents: code,
     },
-    logLevel,
+    logLevel: "error",
   })
 
   const js = new TextDecoder('utf-8').decode(
@@ -81,15 +78,11 @@ function compile(code: string, filename: string) {
   const jsSourceMap = getSourceMap(js)
 
   map[filename] = jsSourceMap
-  if (
-    [undefined, 'info', 'warning'].includes(logLevel) &&
-    warnings.length > 0
-  ) {
-    for (const warning of warnings) {
-      console.log(warning.location)
-      console.log(warning.text)
-    }
+  for (const warning of warnings) {
+    console.log(warning.location)
+    console.log(warning.text)
   }
+
   return js
 }
 
