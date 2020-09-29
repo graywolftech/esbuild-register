@@ -4,7 +4,6 @@ import sourceMapSupport from 'source-map-support'
 import { transformSync } from 'esbuild'
 import { addHook } from 'pirates'
 import { getOptions } from './options'
-import { FILE } from 'dns'
 
 const map: { [file: string]: string | RawSourceMap } = {}
 
@@ -36,14 +35,17 @@ const FILE_LOADERS: Record<EXTENSIONS, LOADERS> = {
 
 const DEFAULT_EXTENSIONS = Object.keys(FILE_LOADERS);
 
-const getLoader = (filename: string): LOADERS => FILE_LOADERS[extname(filename) as EXTENSIONS]
+const isKnownExtension = (ext: string): ext is EXTENSIONS => FILE_LOADERS.hasOwnProperty(ext)
+
+const getLoader = (ext: string): LOADERS => isKnownExtension(ext) ? FILE_LOADERS[ext] : "ts"
 
 function compile(code: string, filename: string) {
   const options = getOptions(dirname(filename))
+  const ext = extname(filename)
   const { js, warnings, jsSourceMap } = transformSync(code, {
     sourcefile: filename,
     sourcemap: true,
-    loader: getLoader(filename),
+    loader: getLoader(ext),
     target: options.target,
     jsxFactory: options.jsxFactory,
     jsxFragment: options.jsxFragment,

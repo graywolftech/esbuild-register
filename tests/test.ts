@@ -1,4 +1,3 @@
-import path from 'path'
 import {test} from 'uvu'
 import assert from 'uvu/assert'
 import execa from 'execa'
