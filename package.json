@@ -1,7 +1,7 @@
 {
-  "name": "esbuild-register",
+  "name": "@graywolfai/esbuild-register",
   "description": "Transpile JSX, TypeScript and esnext features on the fly with esbuild",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "main": "register.js",
   "license": "MIT",
   "files": [
@@ -15,6 +15,9 @@
   },
   "peerDependencies": {
     "esbuild": "^0.6.3"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "atob": "^2.1.2",
